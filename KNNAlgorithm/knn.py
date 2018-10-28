@@ -1,7 +1,11 @@
+# pylint: disable=unbalanced-tuple-unpacking
+
 from numpy import array_split, squeeze
 from scipy.spatial import distance
 from sklearn import preprocessing
+from custom_exceptions import *
 import operator as o
+import os
 
 
 class Sample():
@@ -18,9 +22,16 @@ class KNN():
     manhattan = distance.cityblock
 
     def __init__(self, training_data, k=3, metrics=euclidean):
+        try:
+            KNN.validate_parameters(self, k)
+        except InvalidValueOfArgumentException as e:
+            print(e.message)
+            os._exit(1)
+
         shape = training_data.shape
         features = shape[1] - 1
         self.data, self.target = array_split(training_data, [features], axis=1)
+        self.data = self.data.astype(float)
         self.std_sc = preprocessing.StandardScaler()
         self.std_sc.fit(self.data)
         self.data = self.std_sc.transform(self.data)
@@ -28,6 +39,18 @@ class KNN():
         self.target = list(squeeze(self.target))
         self.k = k
         self.metrics = metrics
+    
+    @staticmethod
+    def validate_parameters(self, k):
+        if k <= 0:
+            raise InvalidValueOfArgumentException("Value of k should be greater than 0")
+
+    @staticmethod
+    def validate_equal_length_of_containers(self, first_container, second_container):
+        if len(first_container) is not len(second_container):
+            raise ArgumentsNotEqualException(
+                type(first_container), "Lengths of the containers of type: {} should be equal".format(type(first_container))
+                )
 
     @staticmethod
     def most_common(k, dist_vector):
@@ -54,6 +77,7 @@ class KNN():
         self.metrics = metrics
 
     def predict(self, new_data):
+        new_data = new_data.astype(float)
         self.std_sc.fit(new_data)
         new_data = self.std_sc.transform(new_data)
         result = []
@@ -64,9 +88,15 @@ class KNN():
             y.sort(key=o.attrgetter("dist"))
             prediction = KNN.most_common(self.k, y)
             result.append(prediction)
-        print(result)
         return result
 
     def score(self, test_data, labels):
         result = self.predict(test_data)
+
+        try:
+            KNN.validate_equal_length_of_containers(self, test_data, labels)
+        except ArgumentsNotEqualException as e:
+            print(e.message)
+            os._exit(1)
+
         return KNN.count_score(result, labels)

@@ -50,6 +50,12 @@ class KNN():
 
     @staticmethod
     def validate_equal_length_of_containers(first_container, second_container):
+        if len(first_container) is 0:
+            raise EmptyContainerException(type(first_container), "Container of type: {} should not be empty".format(
+                    type(first_container)))
+        if len(second_container) is 0:
+            raise EmptyContainerException(type(second_container), "Container of type: {} should not be empty".format(
+                    type(second_container)))
         if len(first_container) is not len(second_container):
             raise ArgumentsNotEqualException(
                 type(first_container), "Lengths of the containers of type: {} should be equal".format(
@@ -96,7 +102,7 @@ class KNN():
             y.sort(key=o.attrgetter("dist"))
             prediction = KNN.most_common(self.k, y)
             result.append(prediction)
-            
+
         return result
 
     def score(self, test_data, labels):
@@ -104,6 +110,9 @@ class KNN():
 
         try:
             KNN.validate_equal_length_of_containers(test_data, labels)
+        except EmptyContainerException as e:
+            print(e.message)
+            os._exit(1)
         except ArgumentsNotEqualException as e:
             print(e.message)
             os._exit(1)

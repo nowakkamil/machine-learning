@@ -25,7 +25,7 @@ class KNN():
 
     def __init__(self, training_data, k=3, metrics=euclidean):
         try:
-            KNN.validate_parameters(k)
+            KNN.validate_parameter(k)
         except InvalidValueOfArgumentException as e:
             print(e.message)
             os._exit(1)
@@ -43,24 +43,29 @@ class KNN():
         self.metrics = metrics
 
     @staticmethod
-    def validate_parameters(k):
+    def validate_parameter(k):
         if k <= 0:
             raise InvalidValueOfArgumentException(
                 "Value of k should be greater than 0")
 
     @staticmethod
     def validate_equal_length_of_containers(first_container, second_container):
-        if len(first_container) is 0:
-            raise EmptyContainerException(type(first_container), "Container of type: {} should not be empty".format(
-                    type(first_container)))
-        if len(second_container) is 0:
-            raise EmptyContainerException(type(second_container), "Container of type: {} should not be empty".format(
-                    type(second_container)))
-        if len(first_container) is not len(second_container):
-            raise ArgumentsNotEqualException(
-                type(first_container), "Lengths of the containers of type: {} should be equal".format(
-                    type(first_container))
-            )
+        length_of_first_container = len(first_container)
+        length_of_second_container = len(second_container)
+        type_of_first_container = type(first_container)
+        type_of_second_container = type(second_container)
+
+        if length_of_first_container is 0:
+            raise EmptyContainerException(type_of_first_container,
+                                          "Container of type: {} should not be empty".format(type_of_first_container))
+
+        if length_of_second_container is 0:
+            raise EmptyContainerException(type_of_second_container,
+                                          "Container of type: {} should not be empty".format(type_of_second_container))
+
+        if length_of_second_container is not length_of_second_container:
+            raise ArgumentsNotEqualException(type_of_first_container,
+                                             "Lengths of the containers of type: {} should be equal".format(type_of_first_container))
 
     @staticmethod
     def most_common(k, dist_vector):
@@ -81,6 +86,7 @@ class KNN():
         for i, p in enumerate(predictions):
             if p == labels[i]:
                 score += 1
+
         return score/len(predictions)
 
     def change_k(self, k):

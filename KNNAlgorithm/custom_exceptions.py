@@ -7,6 +7,7 @@ class InvalidValueOfArgumentException(Exception):
     def __init__(self, message):
         self.message = message
 
+
 class ArgumentsNotEqualException(Exception):
     """
     Attributes:
@@ -17,6 +18,7 @@ class ArgumentsNotEqualException(Exception):
     def __init__(self, type, message):
         self.type = type
         self.message = message
+
 
 class EmptyContainerException(Exception):
     """
